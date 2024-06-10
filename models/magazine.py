@@ -33,10 +33,14 @@ class Magazine:
         return self._category
     
     @category.setter
-    def category(self, category):
-        if not isinstance(category, str) or len(category) == 0:
-            raise TypeError("category must be of type str and longer than zero characters")
-        self._category = category
+    def category(self, value):
+        if isinstance(value, str):
+            if len(value):
+                self._category = value
+            else:
+                ValueError("Category must be longer than 0 characters")
+        else:
+            TypeError("Category must be a string")
     
     @property
     def articles(self):
@@ -85,21 +89,20 @@ class Magazine:
         else:
             return None
     
-    def major_contributors(self):
+    def contributing_authors(self):
         """
-        Return major contributors for the magazine.
-        Major contributors are authors who have contributed more than two articles to the magazine.
+        Return a list of authors who have written more than 2 articles for the magazine.
+        Returns None if no such authors exist.
         """
-        major_contributors = []
         if self.contributors:
-            for contributor in self.contributors:
-                article_count = sum(1 for article in self.articles if article.author.id == contributor.id)
-                if article_count > 2:
-                    major_contributors.append(contributor)
-        return major_contributors
+            major_contributors = [contributor for contributor in self.contributors if len([article for article in self.articles if article.author.id == contributor.id]) > 2]
+            if major_contributors:
+                return major_contributors
+        return None
 
     def __repr__(self):
-        contributor_titles = ", ".join([contributor.name for contributor in self.contributors]) if self.contributors else "None"
-        major_contributor_titles = ", ".join([contributor.name for contributor in self.major_contributors()]) if self.major_contributors() else "None"
         article_titles = ", ".join([article.title for article in self.articles]) if self.articles else "None"
-        return f'MAGAZINE: {self.name} || ID: {self.id} || ARTICLES: {article_titles} || CONTRIBUTORS: {contributor_titles} || MAJOR CONTRIBUTORS: {major_contributor_titles}'
+        contributor_titles = ", ".join([contributor.name for contributor in self.contributors]) if self.contributors else "None"
+        major_contributor_names = ", ".join([contributor.name for contributor in self.contributing_authors()]) if self.contributing_authors() else "None"
+        
+        return f'MAGAZINE: {self.name} || ID: {self.id} || ARTICLES: {article_titles} || CONTRIBUTORS: {contributor_titles} || MAJOR CONTRIBUTORS: {major_contributor_names}'
